@@ -5,34 +5,33 @@
         <title>User list</title>
     </head>
     <body>
-        <h2>ユーザー検索</h2>
-        <form method="POST" action="/">
-            <input type="number" name="userId" placeholder="ユーザーIDを入力">
-            <button type="submit">検索</button>
-        </form>
-        <% if (foundUser) { %>
-            <h3>検索結果</h3>
-            <p>名前: <%= foundUser.name %></p>
-            <p>メールアドレス: <%= foundUser.email %></p>
-            <% } else if (message) { %>
-                <p><%= message %></p>
-                <% } %>
-                    <h2>全ユーザー一覧</h2>
-                    <table>
-                        <% if (users) { %>
-                            <% users.forEach(user=> { %> <tr>
-                                    <td>
-                                        <%= user.id %>
-                                    </td>
-                                    <td>
-                                        <%= user.name %>
-                                    </td>
-                                    <td>
-                                        <%= user.email %>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                                    <% } %>
-                    </table>
+        <table>
+        </table>
+        <p id="textTag"><%= message %></p>
+        <ul id="myList"></ul>
+        <div id="myMap"></div>
+        <script type="text/javascript">
+            // ... (参考例は変更なし)
+
+            // 基礎課題01: 画面に表示 
+
+            // 基礎課題02: リスト表示
+            const myList = JSON.parse('<%- JSON.stringify(list) %>');
+            const myListElement = document.getElementById('myList');
+            myList.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = item;
+                myListElement.appendChild(listItem);
+            });
+
+            // 基礎課題03: マップ表示
+            const myMap = JSON.parse('<%- JSON.stringify(map) %>');
+            const myMapElement = document.getElementById('myMap');
+            myMap.forEach(person => {
+                const personDiv = document.createElement('div');
+                personDiv.innerHTML = `name: ${person.name}<br>email: ${person.email}`;
+                myMapElement.appendChild(personDiv);
+            });
+        </script>
     </body>
 </html>
