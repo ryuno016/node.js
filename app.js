@@ -5,6 +5,7 @@ const app = express();
 const port = 3000;
 
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true })); // フォームデータの解析
 
 const mysql = require("mysql2");
 
@@ -16,60 +17,29 @@ const con = mysql.createConnection({
 });
 
 app.get("/", (req, res) => {
-  const sql = "select * from users";
-
-  // 基礎課題01: 文字列
-  const message = "こんにちは、Express.js！";
-
-  // 基礎課題02: リスト
-  const myList = ["りんご", "バナナ", "みかん"];
-
-  // 基礎課題03: マップ
-  const myMap = [
-    { name: "s.chiba", email: "s.chiba@gmail.com" },
-    { name: "t.kosuge", email: "t.kosuge@gmail.com" },
-    { name: "m.chiba", email: "m.chiba@gmail.com" },
-    { name: "t.suzuki", email: "t.suzuki@gmail.com" },
-    { name: "t.hasegawa", email: "t.hasegawa@gmail.com" },
-  ];
-
-  con.query(sql, function (err, result, fields) {
+  const sql = "SELECT * FROM users";
+  con.query(sql, function (err, result) {
     if (err) throw err;
-    res.render("index", {
-      users: result,
-      message: message,
-      list: myList,
-      map: myMap,
-    });
+    res.render("index", { users: result, foundUser: null, message: null }); // 初期表示ではfoundUserとmessageはnull
   });
 });
 
-app.get("/edit/:id", (req, res) => {
+app.post("/", (req, res) => {
+  const userId = req.body.userId; // フォームからIDを取得
   const sql = "SELECT * FROM users WHERE id = ?";
-  con.query(sql, [req.params.id], function (err, result, fields) {
+
+  con.query(sql, [userId], function (err, result) {
     if (err) throw err;
-    res.render("edit", {
-      user: result,
-    });
+
+    if (result.length > 0) {
+      // ユーザーが見つかった場合
+      res.render("index", { users: null, foundUser: result[0], message: null });
+    } else {
+      // ユーザーが見つからなかった場合
+      res.render("index", { users: null, foundUser: null, message: "該当するユーザーが見つかりません。" });
+    }
   });
 });
 
-app.post("/update/:id", (req, res) => {
-  const sql = "UPDATE users SET ? WHERE id = " + req.params.id;
-  con.query(sql, req.body, function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
-    res.redirect("/");
-  });
-});
-
-app.get("/delete/:id", (req, res) => {
-  const sql = "DELETE FROM users WHERE id = ?";
-  con.query(sql, [req.params.id], function (err, result, fields) {
-    if (err) throw err;
-    console.log(result);
-    res.redirect("/");
-  });
-});
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
